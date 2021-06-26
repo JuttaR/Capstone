@@ -114,7 +114,7 @@ Please note: .har files can accumulate large amounts of data fairly quickly, so 
 ### File Tree
 The project consists of the following files:
 ```
-MINI_Dashboard/  
+Capstone [MINI_Dashboard]/  
 │  
 ├── assets/  
 │   ├── logo.png  # logo for styling the web app
@@ -129,6 +129,7 @@ MINI_Dashboard/
 ├── Procfile  # file for running app in production  
 ├── README.md  # this Readme file  
 ├── requirements.txt  # file containing all required libraries for installing on web server  
+├── screenshot_1.jpg  # screenshot of dashboard for README  
 │  
 ```
 ### Reference
