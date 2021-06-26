@@ -4,12 +4,12 @@
 
 ### Project Overview
 This project is a web tool for marketers at MINI. 
-It takes in Instagram data from MINI and its main competitors, analyses and visualizes the data in various interactive charts.
+It takes in Instagram data from MINI and its main competitors, and analyses and visualizes the data in various interactive charts.
 These help the global Brand Management team at MINI to monitor relevant developments on Instagram.
 
 ### Problem Statement
 Continuous monitoring, analysis and deriving insights is important in the global steering role of the Brand Management team at MINI.  
-The problem is however, that the Instagram has discontinued their official API and as the medium is ever-evolving, it is very resource-intense to keep track in a manual fashion.  
+The problem is however that Instagram has discontinued their official API and as the medium is ever-evolving, it is very resource-intense to keep track in a manual fashion.  
 Retrieving relevant data from the platform by accessing Instagram in an automated fashion, such as using typical scraping techniques however violates the platforms' ToS.
 
 ### Proposed Solution
