@@ -86,7 +86,7 @@ The following aspects would make the dashboard even more insightful, however it 
 - Host app on Heroku or the like and implement direct upload functionality for new .har files to allow direct online user interaction
 All these improvements would result in a broader view of developments or more in-depth understanding.
 
-### Instructions
+## 6. Instructions
 The project uses the following libraries:  
 base64, datetime, dash, dash_core_components, dash_html_components, dash_bootstrap_components, json, numpy, pandas, plotly, re, sqlalchemy, sys, vaderSentiment  
 Please check requirements.txt for details.  
@@ -111,7 +111,7 @@ To create your own .har file, please follow these steps:
  
 Please note: .har files can accumulate large amounts of data fairly quickly, so it is recommended to repeat this process after a couple of minutes of browsing.
 
-### File Tree
+## 7. File Tree
 The project consists of the following files:
 ```
 Capstone [MINI_Dashboard]/  
@@ -132,9 +132,9 @@ Capstone [MINI_Dashboard]/
 ├── screenshot_1.jpg  # screenshot of dashboard for README  
 │  
 ```
-### Reference
+## 8. Reference
 Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.
 
-### Acknowledgements
+## 9. Acknowledgements
 Thanks to BMW for believing in my aspiration and determination to tackle this program as a full-time marketeer with hobbyist interest in programming and sponsoring this Udacity Nanodegree in Data Science. It's been truly worth investing the time.  
 Thanks to Udacity for creating such a challenging and intense program. It went way beyond other online video platforms and broadened and deepened my understanding of Data Science at the same time. I've learned a tremendous amount and improved my skills to a whole new level in the process.
