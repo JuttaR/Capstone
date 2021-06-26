@@ -136,5 +136,5 @@ Capstone [MINI_Dashboard]/
 Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.
 
 ## 9. Acknowledgements
-Thanks to BMW for believing in my aspiration and determination to tackle this program as a full-time marketeer with hobbyist interest in programming and sponsoring this Udacity Nanodegree in Data Science. It's been truly worth investing the time.  
-Thanks to Udacity for creating such a challenging and intense program. It went way beyond other online video platforms and broadened and deepened my understanding of Data Science at the same time. I've learned a tremendous amount and improved my skills to a whole new level in the process.
+Thanks to BMW for believing in my aspiration and determination to tackle this Udacity Nanodegree in Data Science program as a full-time marketeer with hobbyist interest in programming. It's been truly worth investing the time.  
+Thanks to Udacity for creating such a challenging and intense program. It went way beyond other online learning platforms and broadened and deepened my understanding of Data Science at the same time. I've learned a tremendous amount and the program has increased my skills to a whole new level.
