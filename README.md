@@ -22,6 +22,8 @@ Using this method is also expected to be a more resilient solution than using me
 The data is displayed in a web-based dashboard using Dash and Plotly in the background. The user can make a global date selection through a date picker that automatically updates all outputs.  
 Drop downs are available at each visualization to individually select relevant competitors.  
 
+![Screenshot 1](screenshot_1.jpg)
+
 ### Metrics
 Key metrics to measure the social media performance of the channels are visualized in a dashboard and regard current followers, engagement (likes & comments) and sentiment.  
 
