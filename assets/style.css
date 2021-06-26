@@ -1,0 +1,69 @@
+/* assets/style.css */
+/*FLATLY colors:
+    --primary: #2c3e50;
+    --secondary: #95a5a6;
+    --success: #18bc9c;
+    --info: #95a5a6;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --light: #95a5a6;
+    --dark: #7b8a8b;
+    BACKGROUND: #ecf0f1
+    Background Jumbotron: #95a5a6
+    FONT: #ecf0f1
+*/
+
+.custom-dropdown .Select--multi .Select-value {
+  font-family: Lato;
+  background-color: #ecf0f1;
+  border-color: #95a5a6;
+  color: #212529;
+}
+
+.is-focused:not(.is-open) > .Select-control {
+  border-color: #95a5a6;
+  box-shadow: 0 0 0 0px #95a5a6;
+}
+
+.Select-control, .Select div, .is-open>.Select-control{
+  color: #212529;
+  border-color: #95a5a6;
+  border: 1 none transparent;
+  background-color: #ecf0f1;
+}
+.Select--multi .Select-value {
+  color: #fff;
+  border-color: #95a5a6;
+  border: 0 none transparent;
+  background-color: #2c3e50; /*color of selected values*/
+}
+
+/*SELECT SINGLE*/
+.custom-dropdown .Select--single .Select-value .Select-placeholder {
+  font-family: Lato;
+  background-color: #ecf0f1;
+  border-color: #95a5a6;
+  color: #fff;
+}
+
+.Select--single .Select-value {
+  border-color: #95a5a6;
+  border: 0 none transparent;
+  background-color: #2c3e50; /*color of selected values*/
+  color: #fff
+}
+
+.has-value.Select--single {
+  color: #fff;
+  border-color: #95a5a6;
+  border: 0 none transparent;
+  background-color: #2c3e50; /*color of selected values*/
+}
+
+#react-select-5--value-item {
+  color: #fff;
+}
+
+#react-select-6--value-item {
+  color: #fff;
+}
