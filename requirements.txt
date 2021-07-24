@@ -1,3 +1,7 @@
+joblib
+emot
+scikit-learn
+nltk
 vaderSentiment
 sqlalchemy
 Brotli==1.0.9
