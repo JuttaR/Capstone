@@ -1,12 +1,18 @@
 import base64
 from datetime import datetime
+from deep_translator import GoogleTranslator
+import joblib
 import json
-import numpy as np
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize.casual import TweetTokenizer
 import pandas as pd
 import re
 from sqlalchemy import create_engine
 import sys
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+nltk.download(['punkt', 'stopwords', 'wordnet'])
 
 
 def load_data(har_filepath):
@@ -31,15 +37,15 @@ def load_data(har_filepath):
 
 def filter_data(entries):
     """
-        Filters entries for different regex patterns and outputs relevant entries for further analysis
+    Filters entries for different regex patterns and outputs relevant entries for further analysis
 
-        INPUT:
-            entries: list of entries in har file
+    INPUT:
+        entries: list of entries in har file
 
-        OUTPUTS:
-            url_indices: list of indices of entries that match specified url pattern
-            url_decoded_shortcode: list of shortcodes of viewed Instagram posts (None if only timesline was browsed)
-            url_followers: list of indices of entries that match specified pattern to extract follower data
+    OUTPUTS:
+        url_indices: list of indices of entries that match specified url pattern
+        url_decoded_shortcode: list of shortcodes of viewed Instagram posts (None if only timesline was browsed)
+        url_followers: list of indices of entries that match specified pattern to extract follower data
     """
     # Match pattern for relevant URLs, followers & shortcodes, i.e. the unique identifier of a post in the URL
     # e.g. CIeQ4YfpGLA in https://www.instagram.com/p/CIeQ4YfpGLA/
@@ -68,18 +74,18 @@ def filter_data(entries):
 
 def decoding_entries(entries, url_indices, url_followers):
     """
-        Decodes relevant entries with base64 and utf-8 decoding for further analysis
+    Decodes relevant entries with base64 and utf-8 decoding for further analysis
 
-        INPUT:
-            entries: list of entries in .har file
-            url_indices: list of indices of entries that match specified pattern
-            url_followers: list of indices of entries that match specified pattern to extract follower data
+    INPUTS:
+        entries: list of entries in .har file
+        url_indices: list of indices of entries that match specified pattern
+        url_followers: list of indices of entries that match specified pattern to extract follower data
 
-        OUTPUTS:
-            valid_posts: List of decoded content of relevant entries
-            browsed_at: List of timestamps to allow updates of database
-            valid_followers: List of decoded content of relevant follower info
-            browsed_at_followers: List of timestamps to allow updates of follower database
+    OUTPUTS:
+        valid_posts: List of decoded content of relevant entries
+        browsed_at: List of timestamps to allow updates of database
+        valid_followers: List of decoded content of relevant follower info
+        browsed_at_followers: List of timestamps to allow updates of follower database
     """
     # Extracting relevant text from utf8 and base64 encoded posts
     valid_posts = []
@@ -169,8 +175,7 @@ def create_dfs():
                                 'shortcode': pd.Series([], dtype='str'),
                                 'created_at': pd.Series([], dtype='datetime64[ns]'),
                                 'comment_text': pd.Series([], dtype='str'),
-                                'comment_likes': pd.Series([], dtype='int64'),
-                                'vader_sentiment': pd.Series([], dtype='float64')})
+                                'comment_likes': pd.Series([], dtype='int64')})
 
     df_comments.set_index(['comment_id'])
 
@@ -228,7 +233,6 @@ def extract_data(df_posts, df_comments, df_followers, valid_posts, browsed_at, v
                 video_views = None
             image = image_pattern.search(valid_posts[i]['data']['shortcode_media']['display_url']).group()
 
-            # print(f"parsed single post {i}: {shortcode}")
             df_posts = df_posts.append({'medium_id': medium_id,
                                         'updated': updated,
                                         'shortcode': shortcode,
@@ -297,7 +301,7 @@ def extract_data(df_posts, df_comments, df_followers, valid_posts, browsed_at, v
                         continue
             except KeyError:
                 try:
-                    # works with comments
+                    # Works with comments
                     for k in range(
                             len(valid_posts[i]['data']['shortcode_media']['edge_media_to_parent_comment']['edges'])):
                         try:
@@ -315,15 +319,13 @@ def extract_data(df_posts, df_comments, df_followers, valid_posts, browsed_at, v
                             comment_likes = \
                                 valid_posts[i]['data']['shortcode_media']['edge_media_to_parent_comment']['edges'][k][
                                     'node']['edge_liked_by']['count']
-                            vader_sentiment = SentimentIntensityAnalyzer().polarity_scores(comment_text)['compound']
 
                             df_comments = df_comments.append({'comment_id': comment_id,
                                                               'updated': updated,
                                                               'shortcode': shortcode,
                                                               'created_at': created_at,
                                                               'comment_text': comment_text,
-                                                              'comment_likes': comment_likes,
-                                                              'vader_sentiment': vader_sentiment},
+                                                              'comment_likes': comment_likes},
                                                              ignore_index=True)
                         except (KeyError, IndexError) as errors:
                             continue
@@ -348,22 +350,22 @@ def extract_data(df_posts, df_comments, df_followers, valid_posts, browsed_at, v
 
 def clean_data(df_posts, df_comments, df_followers):
     """
-    Drops outdated or irrelevant data from dataframes; scores and then merges average sentiment data from comments using
-    VADER with corresponding post
+    Drops outdated or irrelevant data from dataframes and sorts results
 
     INPUTS:
         df_posts: pandas dataframe containing Instagram posts data
         df_comments: pandas dataframe containing Instagram comments for respective posts
         df_followers: pandas dataframe containing Instagram follower data for respective profiles
 
-    OUTPUT:
-        df_posts_comments: pandas dataframe containing cleaned posts data merged with sentiment score of comments
+    OUTPUTS:
+        df_posts: pandas dataframe containing cleaned posts data
         df_followers_clean: pandas dataframe containing cleaned Instagram follower data for respective profiles
+        df_comments_filtered: pandas dataframe containing cleaned Instagram comments on posts of respective profiles
     """
     # List of relevant profiles
     competitive_set = ['mini', 'audiofficial', 'fiat']
 
-    # Drop posts from irrelevant profiles
+    # Drops data from irrelevant profiles
     df_posts_filtered = df_posts[df_posts.username.isin(competitive_set)]
     df_followers_filtered = df_followers[df_followers.username.isin(competitive_set)]
 
@@ -371,79 +373,175 @@ def clean_data(df_posts, df_comments, df_followers):
     df_posts_clean = df_posts_filtered.drop_duplicates(subset=['shortcode'], keep='last')
     df_followers_clean = df_followers_filtered.drop_duplicates(subset=['username'], keep='last')
 
-    # Sort taken_at in descending order
+    # Sort taken_at
     df_posts_sorted = df_posts_clean.sort_values(by='taken_at', ascending=True)
 
-    # Take average of comment sentiment
-    avg_sentiment = pd.pivot_table(df_comments,
-                                   values='vader_sentiment',
-                                   index=['shortcode'],
-                                   aggfunc=np.mean).reset_index()
-    # Merge sentiment data with posts data
-    df_posts_comments = df_posts_sorted.merge(avg_sentiment, on='shortcode', how='left')
+    # Evaluate only comments to relevant posts
+    df_comments_filtered = df_comments[df_comments.shortcode.isin(df_posts_sorted.shortcode)]
 
-    return df_posts_comments, df_followers_clean
+    return df_posts, df_followers_clean, df_comments_filtered
 
 
-def save_data(df_posts_comments, df_followers_clean, database_filepath):
+def translate_comments(df_comments_filtered):
+    """
+    Translates with Google Translate using auto-detection of language to convert all comments into English.
+    PLEASE NOTE: This process takes some time (up to 2 seconds per comment)
+
+    INPUT:
+        df_comments_filtered: pandas dataframe containing cleaned Instagram comments on posts of respective profiles
+
+    OUTPUT:
+        df_comments_translated: pandas dataframe containing only English-language comments
+    """
+    # Translate comments into English
+    en_comments = []
+    for text in df_comments_filtered['comment_text']:
+        try:
+            en_comment = GoogleTranslator(source='auto', target='en').translate(text=text)
+            if en_comment:
+                en_comments.append(en_comment)
+            else:
+                en_comments.append(text)
+        except Exception:  # Tried to except just NotValidPayload Exception according to documentation,
+            # however this was not working and producing NameError instead
+            en_comments.append("google_translator_error")
+
+    df_comments_filtered['translation'] = en_comments
+
+    # Drop rows with translation errors
+    df_comments_translated = df_comments_filtered[df_comments_filtered['translation'] != 'google_translator_error']
+
+    return df_comments_translated
+
+
+def tokenize(text):
+    """
+    Cleans text data in order to use it for sentiment scoring.
+
+    INPUT:
+        Preprocessed filtered comment
+
+    OUTPUT:
+        Cleaned comment (w/o urls, normalized, tokenized, w/o stopwords, lemmatized)
+    """
+    # Use regex expression to detect urls in text
+    url_regex = "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+    detected_urls = re.findall(url_regex, text)
+
+    # Replace all urls with placeholder
+    for detected_url in detected_urls:
+        text = text.replace(detected_url, "url")
+
+    # Normalization (keeping emoticons for sentiment analysis)
+    text = re.sub(r"[.,;:?!()&#’]", "", text.lower())
+
+    # Tokenization
+    words = TweetTokenizer().tokenize(text)
+
+    # Removal of stopwords
+    words = [w for w in words if w not in stopwords.words("english")]
+
+    # Lemmatization (nouns)
+    cleaned_tokens = [WordNetLemmatizer().lemmatize(w).strip() for w in words]
+
+    return cleaned_tokens
+
+
+def classify_comments(df_comments_translated, model_filepath):
+    """
+    Loads trained model and classifies comments accordingly
+
+    INPUT:
+        df_comments_translated: Preprocessed filtered comments
+
+    OUTPUT:
+        df_comments_scored: pandas dataframe with comments scored by sentiment
+    """
+    # Load model
+    model = joblib.load(model_filepath)
+
+    # Predict sentiment
+    sentiment_class = model.predict(df_comments_translated['translation'])
+
+    # Add predictions to dataframe and replace class names
+    df_comments_translated['pred_sentiment'] = sentiment_class.tolist()
+    df_comments_scored = df_comments_translated.replace({'pred_sentiment': {0: 'negative', 1: 'neutral', 2: 'positive'}})
+
+    return df_comments_scored
+
+
+def save_data(df_posts, df_followers_clean, df_comments_scored, database_filepath):
     """
     Saves dataframes to SQLite database
 
     INPUTS:
-        df_posts_comments: pandas dataframe containing cleaned posts data merged with sentiment score of comments
+        df_posts: pandas dataframe containing cleaned posts data merged with sentiment score of comments
         df_followers_clean: pandas dataframe containing cleaned Instagram follower data for respective profiles
+        df_comments_scored: pandas dataframe scored cleaned Instagram comments on posts of respective profiles
         database_filepath: database filepath
 
     OUTPUT:
         None
     """
-    # create SQLAlchemy engine
+    # Create SQLAlchemy engine
     engine = create_engine('sqlite:///{}'.format(database_filepath))
 
-    # save dataframe to SQLite database; replace if already exists
-    df_posts_comments.to_sql('df', engine, index=False, if_exists='append')
+    # Save dataframe to SQLite database; replace if already exists
+    df_posts.to_sql('df_posts', engine, index=False, if_exists='append')
     df_followers_clean.to_sql('df_followers', engine, index=False, if_exists='append')
+    df_comments_scored.to_sql('df_comments', engine, index=False, if_exists='append')
 
 
 def main():
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 4:
 
-        har_filepath, database_filepath = sys.argv[1:]
+        har_filepath, database_filepath, model_filepath = sys.argv[1:]
 
         print(f"Loading har file from {har_filepath} ...")
         entries = load_data(har_filepath)
 
-        print(f"Filtering data...")
+        print("Filtering data...")
         url_indices, url_decoded_shortcode, url_followers = filter_data(entries)
 
-        print(f"Decoding entries with utf-8 and/or base64 encoding...")
+        print("Decoding entries with utf-8 and/or base64 encoding...")
         valid_posts, browsed_at, valid_followers, browsed_at_followers = decoding_entries(entries, url_indices,
                                                                                           url_followers)
         print(f"Number of decoded posts: {len(valid_posts)}")
         print(f"Number of decoded follower data: {len(valid_followers)}")
 
-        print(f"Creating dataframes...")
+        print("Creating dataframes...")
         df_posts, df_comments, df_followers = create_dfs()
 
-        print(f"Extracting data...")
+        print("Extracting data...")
         df_posts, df_comments, df_followers = extract_data(df_posts, df_comments, df_followers, valid_posts, browsed_at,
                                                            valid_followers, browsed_at_followers, url_decoded_shortcode)
 
-        print('Cleaning data...')
-        df_posts_comments, df_followers_clean = clean_data(df_posts, df_comments, df_followers)
+        print("Cleaning data...")
+        df_posts, df_followers_clean, df_comments_filtered = clean_data(df_posts, df_comments, df_followers)
 
-        print('Saving data...\n    DATABASE: {}'.format(database_filepath))
-        save_data(df_posts_comments, df_followers_clean, database_filepath)
+        print("Translating comments... please note this may take some time as it is using Google Translate...")
+        df_comments_translated = translate_comments(df_comments_filtered)
 
-        print('Cleaned data saved to database!')
+        print("Loading model, tokenizing and classifying comments...")
+        df_comments_scored = classify_comments(df_comments_translated, model_filepath)
+
+        print(f"Saving data to {database_filepath}...")
+        save_data(df_posts, df_followers_clean, df_comments_scored, database_filepath)
+
+        print("Cleaned data saved to database!")
+
+        print('Run process_comments.py next if you would like to rate the sentiment of comments manually ' \
+              'otherwise run app.py to show dashboard')
 
     else:
         print('Please provide the filepath of the Instagram browsing history ' \
-              '(.har file) as the first argument, as well as the filepath of the ' \
-              'database to save the cleaned data to as the second argument.' \
-              '\n\nExample: python data/process_data.py ' \
+              '(.har file) as the first argument, the filepath of the database ' \
+              'to save the cleaned data to as the second argument, and the filepath ' \
+              'of the model to classify the sentiment of a comment as third argument. ' \
+              '\n\nExample: python data/parse_data.py ' \
               'data/audi_example.har ' \
-              'data/database.db ')
+              'data/database.db ' \
+              'models/model.pkl ')
 
 
 if __name__ == '__main__':
