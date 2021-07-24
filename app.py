@@ -8,35 +8,51 @@ import pandas as pd
 import plotly.graph_objs as go
 from sqlalchemy import create_engine
 
-# LOAD DATA FROM DATABASE
+# Load data from database
 print("Connecting to SQL database...")
 engine = create_engine('sqlite:///data/database.db')
 
 print("Reading in SQL tables...")
-df_posts = pd.read_sql_table('df', engine)
+df_posts = pd.read_sql_table('df_posts', engine)
 df_followers = pd.read_sql_table('df_followers', engine)
+df_comments = pd.read_sql_table('df_comments', engine)
 
-# DROP ALL NON-NECESSARY DATA FOR CURRENT VISUALIZATIONS
+print(f"Rows of tables: Posts: {len(df_posts)},"
+      f"Followers: {len(df_followers)},"
+      f"Comments: {len(df_comments)}, ")
+
+# Drop all non-necessary data for current visualizations
 df_posts.drop_duplicates(subset=['shortcode'], keep='last', inplace=True)
 df_posts.drop(columns=['medium_id', 'owner_id', 'video_views', 'image', 'typename', 'is_video', 'updated'],
               inplace=True)
 df_followers.drop_duplicates(subset=['username'], keep='last', inplace=True)
+df_comments.drop_duplicates(subset=['comment_id'], keep='last', inplace=True)
+print(f"Rows of tables after: Posts: {len(df_posts)},"
+      f"Followers: {len(df_followers)},"
+      f"Comments: {len(df_comments)}, ")
 
-# CREATE DAY COLUMN
+# Create day column for aggregating data in visualizations
 df_posts['day'] = pd.to_datetime(df_posts['taken_at']).dt.date
 
-# CREATE DROPDOWN OPTIONS
+# Create sentiment distribution for each post
+df_sentiment_grouped = df_comments.groupby(['shortcode', 'pred_sentiment']).size().unstack(fill_value=0)
+
+# Merge sentiments with posts and fill blanks for comments that are not available publicly
+df_posts_scored = pd.merge(df_posts, df_sentiment_grouped, how="outer", on='shortcode')
+df_posts_scored.update(df_posts_scored[['negative', 'neutral', 'positive']].fillna(0))
+
+# Create dropdown options
 profile_options = [{'label': str(profile), 'value': profile} for profile in (df_posts['username'].unique())]
 
-# DATA IMPORTS
+# Import icon
 navicon = 'logo.png'
 
-# INITIALIZE APP
+# Initialize app
 print("Initializing app...")
 app = dash.Dash(__name__, title='MINI Instagram Dashboard', external_stylesheets=[dbc.themes.FLATLY])
 server = app.server
 
-# SET CHART STYLING TEMPLATE
+# Set chart styling template
 mini_template = dict(layout=
                      go.Layout(title_font=dict(family="Lato", size=24, color='#212529'),
                                font=dict(family="Lato", size=12, color='#212529'),
@@ -47,7 +63,7 @@ mini_template = dict(layout=
                                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
                                ))
 
-# CREATE NAVBAR WITH LOGO, DROPDOWN, LINK
+# Create navigation bar with icon, dropdown and links
 navbar = dbc.Navbar(dbc.Container([html.A(
                                         dbc.Row([dbc.Col(html.Img(src=app.get_asset_url(navicon), height="50px")),
                                                  dbc.Col(dbc.NavbarBrand("Interactive MINI Instagram Dashboard",
@@ -75,7 +91,7 @@ navbar = dbc.Navbar(dbc.Container([html.A(
                                       id="navbar-collapse", navbar=True,), ]),
                     color="primary", dark=True, className="navbar navbar-expand-lg navbar-dark bg-primary")
 
-# INTRO CARD
+# Create intro card
 card = dbc.Card([dbc.CardHeader("Udacity Nanodegree in Data Science - Capstone Project"),
                 dbc.CardBody([
                                 html.H4("About MINI Instagram Dashboard", className="card-title"),
@@ -180,7 +196,7 @@ app.layout = html.Div([
                                         # 2nd ROW OF POSTING INSIGHTS CHARTS
                                         dbc.Row([
                                             dbc.Col(
-                                                dbc.Card([dbc.CardHeader("Avg. sentiment"),
+                                                dbc.Card([dbc.CardHeader("Sentiment distribution"),
                                                           dbc.CardBody([
                                                             dcc.Graph(id="avg-sentiment")
                                                             ], className="card-body px-0 mx-0",
@@ -280,20 +296,23 @@ def update_figure(value, start_date, end_date):
 def update_figure(value, start_date, end_date):
     traces = []
     for profile in value:
-        df_posts_profile = df_posts[df_posts['username'] == profile]
-        df_posts_profile_day = df_posts_profile.groupby('day')
-        comments_sum = df_posts_profile_day.comments.sum().to_frame().reset_index()
-        sentiment_mean = df_posts_profile_day.vader_sentiment.mean().to_frame().reset_index()
+        df_posts_scored_profile = df_posts_scored[df_posts_scored['username'] == profile]
+        df_posts_scored_profile_day = df_posts_scored_profile.groupby('day')
+        comments_sum = df_posts_scored_profile_day.comments.sum().to_frame().reset_index()
+        total_score = (df_posts_scored_profile_day.positive.sum() + df_posts_scored_profile_day.neutral.sum() \
+                       + df_posts_scored_profile_day.negative.sum()).to_frame(name='total_score').reset_index()
+        pos_sentiment = df_posts_scored_profile_day.positive.sum().to_frame().reset_index()
 
         traces.append(dict(type='bar', opacity=0.8, x=comments_sum['day'], y=comments_sum['comments'],
                            name=f'{profile}: Comments',))
-        traces.append(dict(type='scatter', mode='markers', x=sentiment_mean['day'], y=sentiment_mean['vader_sentiment'],
+        traces.append(dict(type='scatter', mode='markers', x=pos_sentiment['day'],
+                           y=pos_sentiment['positive']/total_score['total_score'],
                            yaxis='y2', name=f'{profile}: Sentiment',))
 
     return {'data': traces,
             'layout': go.Layout(xaxis=dict(range=[start_date, end_date]),
                                 yaxis=dict(title='Comments'),
-                                yaxis2=dict(range=[-1, 1], title='Sentiment Score', overlaying='y', side='right'),
+                                yaxis2=dict(range=[0, 1], title='% Positive Sentiment', overlaying='y', side='right'),
                                 template=mini_template)}
 
 
@@ -382,27 +401,44 @@ def update_figure(value, start_date, end_date):
     return go.Figure(data=[fig],
                      layout=go.Layout(height=300, template=mini_template))
 
+
 # 2nd ROW
-# AVG. SENTIMENT
+# SENTIMENT DISTRIBUTION
 @app.callback(
     Output('avg-sentiment', 'figure'),
     [Input('profile-picker-insights', 'value'),
      Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date')])
 def update_figure(value, start_date, end_date):
-    x = []
-    y = []
+    pos = []
+    neu = []
+    neg = []
     for profile in value:
-        df_posts_time = df_posts[
-            (df_posts['taken_at'] > pd.to_datetime(start_date)) & (df_posts['taken_at'] < pd.to_datetime(end_date))]
-        df_posts_profile = df_posts_time[df_posts_time['username'] == profile]
-        x.append(df_posts_profile.vader_sentiment.mean())
-        y.append(profile)
+        df_posts_scored_time = df_posts_scored[
+            (df_posts_scored['taken_at'] > pd.to_datetime(start_date)) & (df_posts_scored['taken_at'] <
+                                                                          pd.to_datetime(end_date))]
+        df_posts_scored_profile = df_posts_scored_time[df_posts_scored_time['username'] == profile]
 
-    fig = go.Bar(x=x, y=y, orientation='h')
+        total_score = df_posts_scored_profile.positive.sum() + df_posts_scored_profile.neutral.sum() +\
+                      df_posts_scored_profile.negative.sum()
 
-    return go.Figure(data=[fig],
-                     layout=go.Layout(height=300, template=mini_template))
+        pos_sent = df_posts_scored_profile.positive.sum()
+        neu_sent = df_posts_scored_profile.neutral.sum()
+        neg_sent = df_posts_scored_profile.negative.sum()
+
+        pos.append(round((pos_sent/total_score), 3))
+        neu.append(round((neu_sent/total_score), 3))
+        neg.append(round((neg_sent/total_score), 3))
+
+    traces = dict(type='bar', opacity=0.8, x=pos, y=value, name='positive', orientation='h',
+                  marker=dict(color='rgba(1, 152, 117, 1)')), \
+             dict(type='bar', opacity=0.8, x=neu, y=value, name='neutral', orientation='h',
+                  marker=dict(color='rgba(189, 195, 199, 1)')), \
+             dict(type='bar', opacity=0.8, x=neg, y=value, name='negative', orientation='h',
+                  marker=dict(color='rgba(246, 71, 71, 1)'))
+
+    return {'data': traces,
+            'layout': go.Layout(height=300, template=mini_template, barmode='stack')}
 
 
 # AVG POSTS
@@ -547,7 +583,7 @@ def update_post(value, start_date, end_date):
     return low_comments, low_caption, low_date, low_link
 
 
-# RESPONSIVE NAVBAR COLLAPSE
+# RESPONSIVE NAVBAR
 @app.callback(Output(f"navbar-collapse", "is_open"),
               [Input(f"navbar-toggler", "n_clicks")],
               [State(f"navbar-collapse", "is_open")])
