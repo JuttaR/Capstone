@@ -175,7 +175,7 @@ their global Instagram channels.
 - The charts on engagement development over time show peaks in post activity and user engagement around the premieres 
 of new vehicles e.g. Jan 27 for announcement of several new MINI models, Feb 9 (Audi RS e-tron GT) and April 14 
 (Audi Q4 e-tron) for new Audi models, not that pronounced for Fiat (TipoCitySport on April 7).
-![Dashboard](dashboard_chart_1.jpg){:height="40%" width="40%"}
+<img src="https://github.com/JuttaR/Capstone/blob/main/dashboard_chart_1.jpg" width="100">
 
 - MINI was the most active on Instagram, posting significantly more posts (261) than Fiat (44) and Audi (86) and also 
 receiving more likes (4.1M vs. 2.9M Audi 226k Fiat) and comments (13k vs. 9k Audi and 6k Fiat) overall as a result. 
