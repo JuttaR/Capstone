@@ -36,21 +36,32 @@ The data is displayed in a web-based dashboard using Dash and Plotly in the back
 selection through a date picker that automatically updates all outputs.  
 Drop downs are available at each visualization to individually select relevant competitors.  
 
-![Screenshot 1](screenshot_1.jpg)
+Exemplary chart - Please run dashboard (see instructions below) for best results.
+
+![Dashboard](dashboard_chart_2.jpg)  
+
+Preview of full dashboard:
+
+![Dashboard](dashboard_full.jpg)
 
 ### Metrics
-In order to satisfy the requirements of the Capstone project, the sentiment analysis piece was selected as a 
-multi-class classification problem to apply a custom-trained machine learning algorithm.
-Accuracy of correctly classifying the sentiment of a comment was selected as the primary metric to evaluate 
-different approaches.
+In order to satisfy the requirements of the Capstone project, the sentiment analysis part was selected as a 
+multi-class classification problem to apply a custom-trained machine learning algorithm.  
+Due to the imbalanced dataset, the F1 score was selected as the metric to quantify the performance of the model. 
+According to the documentation of scikit learn, the F1 score can be interpreted as a "weighted average of the precision 
+and recall". Hence it is not as sensitive to class imbalance such as accuracy alone.  
+In this specific case, the weighted F1 score was chosen as performance evaluation metric of different 
+approaches as it weighs the metrics for each class by support, i.e. the number of true instances for each class.
 
-Additional features to measure the social media performance of the automotive profiles are visualized in a dashboard 
-and regard current followers, engagement (likes & comments) and sentiment.  
+### Features of the data 
+In addition to measuring the ML model, there are a number of indicators that are of interest in the selected domain, 
+i.e. features of the data that regard the social media performance of the automotive profiles. These are visualized in 
+a dashboard and regard current followers and engagement (likes & comments).  
 
-Besides the metrics related to the sentiment analysis, the following information is displayed to the end-user of the 
-dashboard:
+So besides the F1 metrics related to the sentiment analysis problem, the following information is displayed to the 
+end-user of the dashboard:
 - total posts, likes, and comments in date range 
-- avg. sentiment in date range (using VaderSentiment compound)
+- avg. sentiment in date range
 - avg. posts per week (frequency)
 - avg. likes and comments per post
 - top-performing post regarding likes or comments
@@ -74,8 +85,8 @@ Additional insights from data exploration are discussed in section 4: Results.
 The corresponding data visualizations are available in the interactive dashboard to allow users to easily grasp the 
 development and metrics for the key competitors.
 
-In order to explore the sentiment of the comments, an additional Jupyter Notebook (EDA.ipynb) is available. It shows 
-that the standard VADER algorithm achieved an accuracy of 65.3% of the manually scored comments. 
+In order to explore the sentiment of the comments, an additional Jupyter Notebook (EDA-F1.ipynb) is available. It shows 
+that the standard VADER algorithm achieved a weighted F1-score of 68% of the manually scored comments. 
 
 ## 3. Methodology
 
@@ -93,22 +104,46 @@ an initial solution as it is specifically trained on social media data. The resu
 be between -1 (most extreme negative) and +1 (most extreme positive).
 
 After receiving initial reviewer feedback, the next step in this project was to manually score retrieved comments (6.2k 
-deduplicated entries) and using the resulting data for training a custom algorithm for the automotive industry.  
-Checking the classifications by VADER against the manual labels showed that VADER was only able to classify 65.3% 
+deduplicated / unique entries) and using the resulting data for training a custom algorithm for the automotive industry.  
+Checking the classifications by VADER against the manual labels showed that VADER was only able to classify 68% 
 correctly.  
 
-After an exploratory data analysis (see EDA.ipynb), some issues of the data appeared. Besides being limited in size, the
-dataset also is very imbalanced, with 73% positive comments, 19% neutral and only 8% negative.  
-The manually scored comments were then pre-processed for Machine Learning. Comments were pre-processed by translating
-all comments into English, replacing irrelevant urls, normalizing, tokenizing and removing stopwords and lemmatization.
-The cleaned tokens were then used to train a classifier using a machine learning pipeline involving a CountVectorizer, 
-a TfidfTransformer and initially a weighted DecisionTreeClassifier to better balance the classes.
-The results were refined using GridSearch for optimizing the hyperparameters and validated using cross-validation.
-This process helped to get the overall (mean) accuracy to 72.4%.
-As a refinement, a weighted RandomForestClassifier was implemented and here, GridSearch helped to get the overall (mean)
-accuracy to 72.9%. 
+After an exploratory data analysis (see EDA-F1.ipynb), some issues of the data appeared. Besides being limited in size, 
+the dataset also is very imbalanced, with 73% positive comments, 19% neutral and only 8% negative.  
+The manually scored comments were then pre-processed for Machine Learning.  
 
-The model however is still very highly biased towards the predominant 'positive' class.
+The data was pre-processed through the following steps:
+- translating all comments into English (using deep_translator)
+- replacing irrelevant urls by regex matching
+- normalizing (`re.sub(r"[.,;:?!()&#’]", "", text.lower())`)
+- tokenizing (`TweetTokenizer().tokenize(text)`)
+- removing stopwords (`[w for w in words if w not in stopwords.words("english")]`)
+- and finally lemmatization (`[WordNetLemmatizer().lemmatize(w).strip() for w in words]`).
+
+The cleaned tokens were then used to train a classifier using a machine learning pipeline involving a CountVectorizer, 
+a TfidfTransformer and initially a DecisionTreeClassifier.
+The performance was tuned using GridSearch for optimizing the hyperparameters and validated using cross-validation.
+The following parameters were tuned and respective values were searched over:
+- max_depth: [500, 750, 1000] # max depth of the tree
+- min_samples_split: [10, 100, 250] # min number of data points in node before the node is split
+
+The best combination was max_depth of 750 and min_samples_split of 100. This process helped to get the overall 
+weighted F1-score to 80.8%.
+
+As a refinement, a RandomForestClassifier was implemented and here, GridSearch helped to get the weighted 
+F1-score to 81.7%. 
+The following parameters were tuned for the RandomForestClassifier:
+- n_estimators: [10, 15, 20],  # number of trees in the forest
+- max_depth: [250, 500, 750],  # max depth of the tree
+- min_samples_split: [2, 5],  # min number of data points in node before the node is split
+
+The best combination was n_estimators of 15, max_depth of 500 and min_samples_split of 2. 
+
+The training process and classification reports incl. f1 score is documented in the following files:
+- train_classifier_decision_tree_results.txt
+- train_classifier_random_forest_results.txt
+
+The model however is still biased towards the predominant 'positive' class. 
 Hence with more time on hand, acquiring more training data by additional manual rating is required to provide better
 learning possibilities for the model.
 
@@ -119,32 +154,34 @@ Initially the project did not entail a model, but this has now been included bas
 ### Model Evaluation, Validation & Justification
 The project now uses a custom trained algorithm based on a dataset of 6.2k manually scored comments.
 In order to classify new comments regarding polarity (positive, neutral, negative) a machine learning pipeline 
-including a CountVectorizer, a TfidfTransformer and a weighted RandomForestClassifier is used.
+including a CountVectorizer, a TfidfTransformer and a RandomForestClassifier is used.
 The results were refined using GridSearch for optimizing the hyperparameters.
 
 The best results were achieved by using the following hyperparameters:
-- min samples before node is split: 2
-- max features considered for splitting a node: auto
-- n estimators, i.e. trees in the forest = 10
-- max depth, i.e. maximum depth of the tree = 3
+n_estimators of 15, max_depth of 500 and min_samples_split of 2. 
 
-By using this model and the discussed parameters the accuracy of sentiment classification was improved to 72.9%, 
-compared to 65.3% of the VADER algorithm. However to make the model more robust increasing the training dataset by 
+In order to validate the results and check the robustness of the model, three stratified k-fold cross-validation-steps 
+were applied.
+The weighted F1-scores showed minimal variance (within 2.2 ppt), indicating a sufficient robustness of the model for 
+this problem.
+
+By using this model and the discussed parameters the weighted f1-score of sentiment classification was improved to 
+81.7%, compared to 68% of the VADER algorithm. However to make the model more robust increasing the training dataset by 
 manually scoring more comments would be beneficial. This may also then enable Deep Learning approaches.
 
 ### Additional Findings
 The retrieved data for the first half of 2021 show a high variability of how the competitors MINI, Fiat and Audi manage 
 their global Instagram channels.
-- The manual rating of almost 6.2k unique comments resulted in 73% of all comments as positive, 19% as neutral 
-and only 8% as negative. This shows the overall tendency of positive sentiment on the automotive channels.
 - The charts on engagement development over time show peaks in post activity and user engagement around the premieres 
 of new vehicles e.g. Jan 27 for announcement of several new MINI models, Feb 9 (Audi RS e-tron GT) and April 14 
 (Audi Q4 e-tron) for new Audi models, not that pronounced for Fiat (TipoCitySport on April 7).
+![Dashboard](dashboard_chart_1.jpg)
+
 - MINI was the most active on Instagram, posting significantly more posts (261) than Fiat (44) and Audi (86) and also 
 receiving more likes (4.1M vs. 2.9M Audi 226k Fiat) and comments (13k vs. 9k Audi and 6k Fiat) overall as a result. 
-TODO ADAPT:
-Also 
-the sentiment distribution of comments was better with 84% positive comments, but not by much (81% for Audi and 83% for Fiat). 
+- Also the sentiment distribution of comments was better with 84% positive comments, but not by much (81% for Audi and 
+83% for Fiat). 
+![Dashboard](dashboard_chart_3.jpg)
 - Audi on the other hand is able to get more likes per post (33k vs. 16k MINI, 5k Fiat).
 - Fiat posts quite rarely (only 1.9 posts per week vs. 3.6 for Audi and 11.1 for MINI) and spread unevenly (when they 
 post, they often post several posts on one day). They still achieve quite some engagement, especially comments (135 per 
@@ -165,8 +202,8 @@ was more difficult than originally expected.
 It was also important to not process personal data such as user names or profile images of commenting users.
 After the initial submission, the reviewer feedback led to a manual scoring of comments data regarding sentiment to 
 train a custom algorithm that can classify comments accordingly and not simply rely on VADER.
-While the custom model improved the accuracy, it is still rather low with 72.9% and not very robust as the dataset was 
-small and imbalanced.
+While the custom model improved the f1-score, there is still room for improvement, primarily by obtaining a larger
+training dataset.
 
 ### Opportunities for future improvement
 The following aspects would make the dashboard even more insightful, however it would have required additional 
@@ -226,22 +263,29 @@ Capstone [MINI_Dashboard]/
 ├── models/  
 │   ├── comments_for_rating.csv  # initial file to create training and testing data for the classifier
 │   ├── comments_rated.csv  # csv file incl. all labels for training and testing the classifier
-│   ├── model.pkl  # pickle file containing trained model in binary ###(saved in Git LFS)  
+│   ├── model.pkl  # pickle file containing trained model (Random Forest) in binary
+│   ├── model_initial.pkl  # pickle file containing inital model (Decision Tree) in binary
 │   ├── process_comments.py  # python file to load data from database to create comments_for_rating.csv
 │   ├── train_classifier.py  # python file to train classifier model 
-│   ├── train_classifier_results.txt  # txt file with training results and classification report
+│   ├── train_classifier_decision_tree_results.txt  # txt file with training results and classification report
+│   ├── train_classifier_random_forest_results.txt  # txt file with training results and classification report
 │  
 ├── app.py  # python file for running the web app
-├── EDA.ipynb  # Jupyter notebook containing Exploratory Data Analysis of comments
+├── dashboard_chart_1.jpg  # screenshot of dashboard for README  
+├── dashboard_chart_2.jpg  # screenshot of dashboard for README  
+├── dashboard_chart_3.jpg  # screenshot of dashboard for README  
+├── dashboard_full.jpg  # screenshot of dashboard for README  
+├── EDA-F1.ipynb  # Jupyter notebook containing Exploratory Data Analysis of comments
 ├── Procfile  # file for running app in production  
 ├── README.md  # this Readme file  
 ├── requirements.txt  # file containing all required libraries for installing on web server  
-├── screenshot_1.jpg  # screenshot of dashboard for README  
 │  
 ```
 ## 8. Reference
 Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. 
 Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.
+
+Scikit Learn Documentation: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html.
 
 ## 9. Acknowledgements
 Thanks to BMW for believing in my aspiration and determination to tackle this Udacity Nanodegree in Data Science 
