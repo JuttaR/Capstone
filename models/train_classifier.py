@@ -9,7 +9,7 @@ import re
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, f1_score
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
@@ -96,21 +96,17 @@ def build_model():
     OUTPUT:
         model: GridSearch output from cross-validation
     """
-    # Weights to better balance dataset
-    weights = {0: 6.5, 1: 3.0, 2: 1.0}
-
     '''
     # Set up of ML Pipeline for DecisionTreeClassifier
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
-        ('clf', DecisionTreeClassifier(random_state=42, class_weight=weights))
+        ('clf', DecisionTreeClassifier(random_state=42))
     ])
 
     params = {
-        'clf__max_depth': [3, 5],
-        'clf__min_samples_split': [2, 4],  # min number of data points in node before the node is split
-        'clf__max_features': ['log2', 'auto']  # max number of features considered for splitting a node
+        'clf__max_depth': [500, 750, 1000],
+        'clf__min_samples_split': [10, 100, 250],  # min number of data points in node before the node is split
     }
     '''
 
@@ -118,18 +114,17 @@ def build_model():
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
-        ('clf', RandomForestClassifier(random_state=42, class_weight=weights))
+        ('clf', RandomForestClassifier(random_state=42))
     ])
 
     params = {
-        'clf__n_estimators': [5, 10, 25],  # number of trees in the forest
-        'clf__max_depth': [2, 3],  # max depth of the tree
-        'clf__min_samples_split': [2, 4],  # min number of data points in node before the node is split
-        'clf__max_features': ['log2', 'auto']  # max number of features considered for splitting a node
+        'clf__n_estimators': [10, 15, 20],  # number of trees in the forest
+        'clf__max_depth': [250, 500, 750],  # max depth of the tree
+        'clf__min_samples_split': [2, 5],  # min number of data points in node before the node is split
     }
 
     # Create model with GridSearchCV
-    model = GridSearchCV(pipeline, param_grid=params, scoring='accuracy', verbose=0, n_jobs=1, cv=3)
+    model = GridSearchCV(pipeline, param_grid=params, scoring='f1_weighted', verbose=3, n_jobs=1, cv=3)
 
     return model
 
@@ -150,13 +145,12 @@ def evaluate_model(model, X_test, y_test, classes):
     # Print results from GridSearch
     model_results_table = pd.concat([pd.DataFrame(model.cv_results_["params"]),
                                     pd.DataFrame(model.cv_results_["mean_test_score"],
-                                                 columns=["Accuracy"])], axis=1)
+                                                 columns=["F1 weighted"])], axis=1)
 
     print("GridSearch Results Table")
     print(model_results_table)
 
     print(f"Best-performing parameters from GridSearch: {model.best_params_}")
-    print(f"Best score using above parameters: {model.best_score_}")
 
     # Make predictions on test data
     y_pred = model.predict(X_test)
@@ -168,6 +162,10 @@ def evaluate_model(model, X_test, y_test, classes):
     # Print classification reports
     print("Classification report incl. overall micro, macro, weighted and sample averages")
     print(classification_report(y_test, y_pred, target_names=classes, zero_division=0))
+
+    # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score
+    print("Weighted F1 score:")
+    print(f1_score(y_test, y_pred, average='weighted', zero_division=0))
 
 
 def save_model(model, model_filepath):
