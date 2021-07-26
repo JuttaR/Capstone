@@ -1,0 +1,71 @@
+(venv) C:\Users\jutta\Documents\GitHub\Capstone\models>python train_classifier.py comments_rated.csv model_initial.pkl
+[nltk_data] Downloading package punkt to
+[nltk_data]     C:\Users\jutta\AppData\Roaming\nltk_data...
+[nltk_data]   Package punkt is already up-to-date!
+[nltk_data] Downloading package stopwords to
+[nltk_data]     C:\Users\jutta\AppData\Roaming\nltk_data...
+[nltk_data]   Package stopwords is already up-to-date!
+[nltk_data] Downloading package wordnet to
+[nltk_data]     C:\Users\jutta\AppData\Roaming\nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+Loading data from ratings: comments_rated.csv
+Mapping of classes: {'negative': 0, 'neutral': 1, 'positive': 2}
+Building model...
+Training model...
+Fitting 3 folds for each of 9 candidates, totalling 27 fits
+[CV 1/3] END clf__max_depth=500, clf__min_samples_split=10;, score=0.796 total time=   8.8s
+[CV 2/3] END clf__max_depth=500, clf__min_samples_split=10;, score=0.775 total time=   7.4s
+[CV 3/3] END clf__max_depth=500, clf__min_samples_split=10;, score=0.795 total time=   7.6s
+[CV 1/3] END clf__max_depth=500, clf__min_samples_split=100;, score=0.799 total time=   7.7s
+[CV 2/3] END clf__max_depth=500, clf__min_samples_split=100;, score=0.772 total time=   7.6s
+[CV 3/3] END clf__max_depth=500, clf__min_samples_split=100;, score=0.802 total time=   7.8s
+[CV 1/3] END clf__max_depth=500, clf__min_samples_split=250;, score=0.798 total time=   7.9s
+[CV 2/3] END clf__max_depth=500, clf__min_samples_split=250;, score=0.772 total time=   7.9s
+[CV 3/3] END clf__max_depth=500, clf__min_samples_split=250;, score=0.802 total time=   7.8s
+[CV 1/3] END clf__max_depth=750, clf__min_samples_split=10;, score=0.796 total time=   8.0s
+[CV 2/3] END clf__max_depth=750, clf__min_samples_split=10;, score=0.712 total time=   7.8s
+[CV 3/3] END clf__max_depth=750, clf__min_samples_split=10;, score=0.712 total time=   7.9s
+[CV 1/3] END clf__max_depth=750, clf__min_samples_split=100;, score=0.799 total time=   7.9s
+[CV 2/3] END clf__max_depth=750, clf__min_samples_split=100;, score=0.773 total time=   8.0s
+[CV 3/3] END clf__max_depth=750, clf__min_samples_split=100;, score=0.802 total time=   7.9s
+[CV 1/3] END clf__max_depth=750, clf__min_samples_split=250;, score=0.798 total time=   8.0s
+[CV 2/3] END clf__max_depth=750, clf__min_samples_split=250;, score=0.772 total time=   7.9s
+[CV 3/3] END clf__max_depth=750, clf__min_samples_split=250;, score=0.802 total time=   8.0s
+[CV 1/3] END clf__max_depth=1000, clf__min_samples_split=10;, score=0.796 total time=   8.1s
+[CV 2/3] END clf__max_depth=1000, clf__min_samples_split=10;, score=0.712 total time=   8.1s
+[CV 3/3] END clf__max_depth=1000, clf__min_samples_split=10;, score=0.712 total time=   8.1s
+[CV 1/3] END clf__max_depth=1000, clf__min_samples_split=100;, score=0.799 total time=   8.0s
+[CV 2/3] END clf__max_depth=1000, clf__min_samples_split=100;, score=0.773 total time=   8.0s
+[CV 3/3] END clf__max_depth=1000, clf__min_samples_split=100;, score=0.802 total time=   7.9s
+[CV 1/3] END clf__max_depth=1000, clf__min_samples_split=250;, score=0.798 total time=   7.9s
+[CV 2/3] END clf__max_depth=1000, clf__min_samples_split=250;, score=0.772 total time=   7.8s
+[CV 3/3] END clf__max_depth=1000, clf__min_samples_split=250;, score=0.802 total time=   8.0s
+Evaluating model...
+GridSearch Results Table
+   clf__max_depth  clf__min_samples_split  F1 weighted
+0             500                      10     0.788629
+1             500                     100     0.791239
+2             500                     250     0.790538
+3             750                      10     0.739906
+4             750                     100     0.791247
+5             750                     250     0.790538
+6            1000                      10     0.739906
+7            1000                     100     0.791247
+8            1000                     250     0.790538
+Best-performing parameters from GridSearch: {'clf__max_depth': 750, 'clf__min_samples_split': 100}
+Predicted classes: {0: 75, 1: 242, 2: 923}
+Classification report incl. overall micro, macro, weighted and sample averages
+              precision    recall  f1-score   support
+
+    negative       0.49      0.41      0.45        90
+     neutral       0.57      0.62      0.59       222
+    positive       0.90      0.89      0.89       928
+
+    accuracy                           0.81      1240
+   macro avg       0.65      0.64      0.65      1240
+weighted avg       0.81      0.81      0.81      1240
+
+f1 score
+0.8077816839582794
+Saving model as model_initial.pkl
+Trained model saved!

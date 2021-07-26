@@ -1,0 +1,107 @@
+(venv) C:\Users\jutta\Documents\GitHub\Capstone\models>python train_classifier.py comments_rated.csv model.pkl
+[nltk_data] Downloading package punkt to
+[nltk_data]     C:\Users\jutta\AppData\Roaming\nltk_data...
+[nltk_data]   Package punkt is already up-to-date!
+[nltk_data] Downloading package stopwords to
+[nltk_data]     C:\Users\jutta\AppData\Roaming\nltk_data...
+[nltk_data]   Package stopwords is already up-to-date!
+[nltk_data] Downloading package wordnet to
+[nltk_data]     C:\Users\jutta\AppData\Roaming\nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+Loading data from ratings: comments_rated.csv
+Mapping of classes: {'negative': 0, 'neutral': 1, 'positive': 2}
+Building model...
+Training model...
+Fitting 3 folds for each of 18 candidates, totalling 54 fits
+[CV 1/3] END clf__max_depth=250, clf__min_samples_split=2, clf__n_estimators=10;, score=0.795 total time=   9.1s
+[CV 2/3] END clf__max_depth=250, clf__min_samples_split=2, clf__n_estimators=10;, score=0.771 total time=   7.8s
+[CV 3/3] END clf__max_depth=250, clf__min_samples_split=2, clf__n_estimators=10;, score=0.795 total time=   7.7s
+[CV 1/3] END clf__max_depth=250, clf__min_samples_split=2, clf__n_estimators=15;, score=0.800 total time=   7.8s
+[CV 2/3] END clf__max_depth=250, clf__min_samples_split=2, clf__n_estimators=15;, score=0.772 total time=   7.7s
+[CV 3/3] END clf__max_depth=250, clf__min_samples_split=2, clf__n_estimators=15;, score=0.796 total time=   7.8s
+[CV 1/3] END clf__max_depth=250, clf__min_samples_split=2, clf__n_estimators=20;, score=0.794 total time=   7.7s
+[CV 2/3] END clf__max_depth=250, clf__min_samples_split=2, clf__n_estimators=20;, score=0.774 total time=   7.8s
+[CV 3/3] END clf__max_depth=250, clf__min_samples_split=2, clf__n_estimators=20;, score=0.797 total time=   7.8s
+[CV 1/3] END clf__max_depth=250, clf__min_samples_split=5, clf__n_estimators=10;, score=0.795 total time=   7.7s
+[CV 2/3] END clf__max_depth=250, clf__min_samples_split=5, clf__n_estimators=10;, score=0.772 total time=   7.8s
+[CV 3/3] END clf__max_depth=250, clf__min_samples_split=5, clf__n_estimators=10;, score=0.797 total time=   7.7s
+[CV 1/3] END clf__max_depth=250, clf__min_samples_split=5, clf__n_estimators=15;, score=0.793 total time=   7.9s
+[CV 2/3] END clf__max_depth=250, clf__min_samples_split=5, clf__n_estimators=15;, score=0.778 total time=   7.8s
+[CV 3/3] END clf__max_depth=250, clf__min_samples_split=5, clf__n_estimators=15;, score=0.801 total time=   8.4s
+[CV 1/3] END clf__max_depth=250, clf__min_samples_split=5, clf__n_estimators=20;, score=0.795 total time=   8.7s
+[CV 2/3] END clf__max_depth=250, clf__min_samples_split=5, clf__n_estimators=20;, score=0.767 total time=   9.0s
+[CV 3/3] END clf__max_depth=250, clf__min_samples_split=5, clf__n_estimators=20;, score=0.801 total time=   9.0s
+[CV 1/3] END clf__max_depth=500, clf__min_samples_split=2, clf__n_estimators=10;, score=0.798 total time=   9.1s
+[CV 2/3] END clf__max_depth=500, clf__min_samples_split=2, clf__n_estimators=10;, score=0.781 total time=   8.4s
+[CV 3/3] END clf__max_depth=500, clf__min_samples_split=2, clf__n_estimators=10;, score=0.804 total time=   8.3s
+[CV 1/3] END clf__max_depth=500, clf__min_samples_split=2, clf__n_estimators=15;, score=0.804 total time=   8.1s
+[CV 2/3] END clf__max_depth=500, clf__min_samples_split=2, clf__n_estimators=15;, score=0.782 total time=   8.1s
+[CV 3/3] END clf__max_depth=500, clf__min_samples_split=2, clf__n_estimators=15;, score=0.801 total time=   8.0s
+[CV 1/3] END clf__max_depth=500, clf__min_samples_split=2, clf__n_estimators=20;, score=0.801 total time=   8.1s
+[CV 2/3] END clf__max_depth=500, clf__min_samples_split=2, clf__n_estimators=20;, score=0.777 total time=   8.0s
+[CV 3/3] END clf__max_depth=500, clf__min_samples_split=2, clf__n_estimators=20;, score=0.802 total time=   8.0s
+[CV 1/3] END clf__max_depth=500, clf__min_samples_split=5, clf__n_estimators=10;, score=0.800 total time=   7.9s
+[CV 2/3] END clf__max_depth=500, clf__min_samples_split=5, clf__n_estimators=10;, score=0.777 total time=   7.9s
+[CV 3/3] END clf__max_depth=500, clf__min_samples_split=5, clf__n_estimators=10;, score=0.804 total time=  12.0s
+[CV 1/3] END clf__max_depth=500, clf__min_samples_split=5, clf__n_estimators=15;, score=0.803 total time=   9.2s
+[CV 2/3] END clf__max_depth=500, clf__min_samples_split=5, clf__n_estimators=15;, score=0.781 total time=   8.5s
+[CV 3/3] END clf__max_depth=500, clf__min_samples_split=5, clf__n_estimators=15;, score=0.800 total time=   8.4s
+[CV 1/3] END clf__max_depth=500, clf__min_samples_split=5, clf__n_estimators=20;, score=0.798 total time=   8.4s
+[CV 2/3] END clf__max_depth=500, clf__min_samples_split=5, clf__n_estimators=20;, score=0.777 total time=   8.3s
+[CV 3/3] END clf__max_depth=500, clf__min_samples_split=5, clf__n_estimators=20;, score=0.799 total time=   8.3s
+[CV 1/3] END clf__max_depth=750, clf__min_samples_split=2, clf__n_estimators=10;, score=0.801 total time=   8.1s
+[CV 2/3] END clf__max_depth=750, clf__min_samples_split=2, clf__n_estimators=10;, score=0.723 total time=   8.3s
+[CV 3/3] END clf__max_depth=750, clf__min_samples_split=2, clf__n_estimators=10;, score=0.721 total time=   8.4s
+[CV 1/3] END clf__max_depth=750, clf__min_samples_split=2, clf__n_estimators=15;, score=0.808 total time=   8.2s
+[CV 2/3] END clf__max_depth=750, clf__min_samples_split=2, clf__n_estimators=15;, score=0.729 total time=   8.3s
+[CV 3/3] END clf__max_depth=750, clf__min_samples_split=2, clf__n_estimators=15;, score=0.723 total time=   8.1s
+[CV 1/3] END clf__max_depth=750, clf__min_samples_split=2, clf__n_estimators=20;, score=0.809 total time=   8.2s
+[CV 2/3] END clf__max_depth=750, clf__min_samples_split=2, clf__n_estimators=20;, score=0.722 total time=   8.2s
+[CV 3/3] END clf__max_depth=750, clf__min_samples_split=2, clf__n_estimators=20;, score=0.723 total time=   8.2s
+[CV 1/3] END clf__max_depth=750, clf__min_samples_split=5, clf__n_estimators=10;, score=0.795 total time=   8.0s
+[CV 2/3] END clf__max_depth=750, clf__min_samples_split=5, clf__n_estimators=10;, score=0.723 total time=   8.0s
+[CV 3/3] END clf__max_depth=750, clf__min_samples_split=5, clf__n_estimators=10;, score=0.726 total time=   8.0s
+[CV 1/3] END clf__max_depth=750, clf__min_samples_split=5, clf__n_estimators=15;, score=0.800 total time=   8.0s
+[CV 2/3] END clf__max_depth=750, clf__min_samples_split=5, clf__n_estimators=15;, score=0.730 total time=   8.1s
+[CV 3/3] END clf__max_depth=750, clf__min_samples_split=5, clf__n_estimators=15;, score=0.726 total time=   8.2s
+[CV 1/3] END clf__max_depth=750, clf__min_samples_split=5, clf__n_estimators=20;, score=0.799 total time=   8.3s
+[CV 2/3] END clf__max_depth=750, clf__min_samples_split=5, clf__n_estimators=20;, score=0.726 total time=   8.2s
+[CV 3/3] END clf__max_depth=750, clf__min_samples_split=5, clf__n_estimators=20;, score=0.731 total time=   8.1s
+Evaluating model...
+GridSearch Results Table
+    clf__max_depth  clf__min_samples_split  clf__n_estimators  F1 weighted
+0              250                       2                 10     0.786993
+1              250                       2                 15     0.789273
+2              250                       2                 20     0.788238
+3              250                       5                 10     0.788329
+4              250                       5                 15     0.790651
+5              250                       5                 20     0.787855
+6              500                       2                 10     0.794396
+7              500                       2                 15     0.795876
+8              500                       2                 20     0.793347
+9              500                       5                 10     0.794102
+10             500                       5                 15     0.794706
+11             500                       5                 20     0.791268
+12             750                       2                 10     0.748325
+13             750                       2                 15     0.753146
+14             750                       2                 20     0.751330
+15             750                       5                 10     0.747954
+16             750                       5                 15     0.751941
+17             750                       5                 20     0.751811
+Best-performing parameters from GridSearch: {'clf__max_depth': 500, 'clf__min_samples_split': 2, 'clf__n_estimators': 15}
+Predicted classes: {0: 58, 1: 274, 2: 908}
+Classification report incl. overall micro, macro, weighted and sample averages
+              precision    recall  f1-score   support
+
+    negative       0.60      0.39      0.47        90
+     neutral       0.55      0.68      0.60       222
+    positive       0.91      0.89      0.90       928
+
+    accuracy                           0.82      1240
+   macro avg       0.69      0.65      0.66      1240
+weighted avg       0.82      0.82      0.82      1240
+
+f1 score
+0.8168148997684715
+Saving model as model.pkl
+Trained model saved!
