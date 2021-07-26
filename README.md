@@ -36,7 +36,7 @@ The data is displayed in a web-based dashboard using Dash and Plotly in the back
 selection through a date picker that automatically updates all outputs.  
 Drop downs are available at each visualization to individually select relevant competitors.  
 
-Exemplary chart - Please run dashboard (see instructions below) for best results.
+Exemplary chart - Please run dashboard (see 6: Instructions below) for best results.
 
 <img src="https://github.com/JuttaR/Capstone/blob/main/dashboard_chart_2.jpg" width="400">
 
