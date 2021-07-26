@@ -38,11 +38,11 @@ Drop downs are available at each visualization to individually select relevant c
 
 Exemplary chart - Please run dashboard (see instructions below) for best results.
 
-![Dashboard](dashboard_chart_2.jpg)  
+![Dashboard](dashboard_chart_2.jpg){:height="20%" width="20%"}  
 
 Preview of full dashboard:
 
-![Dashboard](dashboard_full.jpg)
+![Dashboard](dashboard_full.jpg){:width="200px"}
 
 ### Metrics
 In order to satisfy the requirements of the Capstone project, the sentiment analysis part was selected as a 
@@ -175,13 +175,13 @@ their global Instagram channels.
 - The charts on engagement development over time show peaks in post activity and user engagement around the premieres 
 of new vehicles e.g. Jan 27 for announcement of several new MINI models, Feb 9 (Audi RS e-tron GT) and April 14 
 (Audi Q4 e-tron) for new Audi models, not that pronounced for Fiat (TipoCitySport on April 7).
-![Dashboard](dashboard_chart_1.jpg)
+![Dashboard](dashboard_chart_1.jpg){:height="40%" width="40%"}
 
 - MINI was the most active on Instagram, posting significantly more posts (261) than Fiat (44) and Audi (86) and also 
 receiving more likes (4.1M vs. 2.9M Audi 226k Fiat) and comments (13k vs. 9k Audi and 6k Fiat) overall as a result. 
 - Also the sentiment distribution of comments was better with 84% positive comments, but not by much (81% for Audi and 
 83% for Fiat). 
-![Dashboard](dashboard_chart_3.jpg)
+![Dashboard](dashboard_chart_3.jpg){:height="50%" width="50%"}
 - Audi on the other hand is able to get more likes per post (33k vs. 16k MINI, 5k Fiat).
 - Fiat posts quite rarely (only 1.9 posts per week vs. 3.6 for Audi and 11.1 for MINI) and spread unevenly (when they 
 post, they often post several posts on one day). They still achieve quite some engagement, especially comments (135 per 
